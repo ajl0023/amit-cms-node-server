@@ -1,0 +1,87 @@
+[
+  {
+    "_id": {
+      "$oid": "6222a35c212128fe7c4e1e4a"
+    },
+    "page": "malibu",
+    "order": 0,
+    "image": {
+      "url": "http://localhost:3000/mock-bb-storage/bg-image-page/7812e9c3-6c78-4ae3-b612-b6bdcb59a238bg1.jpg",
+      "_id": {
+        "$oid": "6222a35c212128fe7c4e1e49"
+      }
+    },
+    "type": "image",
+    "category": {
+      "$oid": "62198acfee737dc5b139ea71"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "621973cbe7b2e79f0c849383"
+    },
+    "page": "equestrian",
+    "order": 1,
+    "type": "image",
+    "image": {
+      "_id": {
+        "$oid": "62214268700620611bcdf139"
+      },
+      "url": "http://localhost:3000/mock-bb-storage\\bg-image-page\\0961d418-3392-4db6-998c-395cda4995beleft5.jpg"
+    },
+    "category": {
+      "$oid": "62198acfee737dc5b139ea71"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "621974060b39fd57fe2b870b"
+    },
+    "page": "video-render",
+    "order": 2,
+    "type": "video",
+    "image": {
+      "url": "http://localhost:3000/mock-bb-storage/bg-image-page/9c231347-434a-41d9-b406-6c4fedbaf039bg4.jpg",
+      "_id": {
+        "$oid": "622141d8c86c7da32d875309"
+      }
+    },
+    "category": {
+      "$oid": "621ae8462b5171ada3bf1987"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6219741d30338a2d1bba934c"
+    },
+    "page": "drone-footage",
+    "order": 3,
+    "type": "video",
+    "image": {
+      "url": "http://localhost:3000/mock-bb-storage/bg-image-page/d08d4d7e-3cc3-4315-9f3a-b0f4897ec9bfdrone.jpg",
+      "_id": {
+        "$oid": "622141d8c86c7da32d87530a"
+      }
+    },
+    "category": {
+      "$oid": "621ae8462b5171ada3bf1987"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "621da99c6f1ac23d30aceb7d"
+    },
+    "page": "contact",
+    "order": 4,
+    "type": "image",
+    "image": {
+      "url": "http://localhost:3000/mock-bb-storage/bg-image-page/333.jpg",
+      "_id": {
+        "$oid": "622141d8c86c7da32d87530b"
+      }
+    },
+    "category": {
+      "$oid": "62198acfee737dc5b139ea71"
+    }
+  }
+]
