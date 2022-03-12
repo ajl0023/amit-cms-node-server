@@ -9,37 +9,51 @@ const {
 } = require("../../utils.js");
 const utils = require("../../utils.js");
 const _ = require("lodash");
+const { main } = require("../../db.js");
 module.exports = async (router, upload) => {
-  const db = await require("../../db.js");
+  const db = require("../../db.js");
+
   router.get("/mobile", async (req, res) => {
-    const pages = await db.collection("mobile").find({}).toArray();
+    const pages = await db.current_db.collection("mobile").find({}).toArray();
     res.json(pages);
   });
   router.post("/mobile/new", async (req, res) => {
+    const database = "aviator";
     const currentFolder = "bg-pages";
-    const collection = "bg-pages";
-    // const imagesPath = require(path.join("./images", currentFolder, "images"));
-    const page = "equestrian";
-    const subFolder = "equestrian";
-
-    const db_data = await convertToObjectId.bind(utils)(
-      require("./bg-pages.json")
-    );
-
-    const imageData1 = JSON.parse(
+    const collection = "mobile";
+    const subFolder = "contact";
+    const page = "contact";
+    const category = "62198acfee737dc5b139ea71";
+    const curr_order = 1;
+    const imagesPath = JSON.parse(
       fs.readFileSync(
-        path.join("./images", currentFolder, subFolder, "data.json")
+        path.join(
+          "./images",
+          database,
+
+          "images",
+          currentFolder,
+          subFolder,
+          "data.json"
+        )
       )
     );
 
-    for (const item of db_data) {
-      console.log(item);
-      const keys = Object.keys(item);
+    await db.db[database].collection(collection).insert({
+      page: page,
+      type: "bg-image",
+      order: curr_order,
+      category: ObjectId(category),
+      images: imagesPath.map((img) => {
+        return {
+          _id: ObjectId(),
 
-      await db.collection(collection).insert({
-        ...item,
-      });
-    }
+          url:
+            "http://localhost:3000" +
+            img.path.replace("public", "").replace(/\\/gi, "/"),
+        };
+      }),
+    });
 
     res.json("nice");
   });
@@ -47,10 +61,10 @@ module.exports = async (router, upload) => {
     "/mobile/behind-the-scenes",
     upload.fields([{ name: "images" }]),
     async (req, res) => {
-      const collection = db.collection("mobile");
+      const collection = db.current_db.collection("mobile");
       const promises = [];
       const deletedItems = req.body.deleted;
-
+      console.log(deletedItems);
       for (const page in deletedItems) {
         if (Object.hasOwnProperty.call(deletedItems, page)) {
           const selected = deletedItems[page];
@@ -68,7 +82,7 @@ module.exports = async (router, upload) => {
               {
                 arrayFilters: [
                   {
-                    "image._id": ObjectId(item._id),
+                    "image._id": ObjectId(item),
                   },
                 ],
               }
@@ -84,7 +98,7 @@ module.exports = async (router, upload) => {
     "/mobile/behind-the-scenes/phase",
     upload.fields([{ name: "images" }]),
     async (req, res) => {
-      const collection = db.collection("mobile");
+      const collection = db.current_db.collection("mobile");
       const promises = [];
       const deletedItems = req.body.phase;
       await collection.updateOne(
@@ -106,10 +120,10 @@ module.exports = async (router, upload) => {
     "/mobile",
     upload.fields([{ name: "images" }]),
     async (req, res) => {
-      const collection = db.collection(req.body.category);
+      const collection = db.current_db.collection(req.body.category);
       const promises = [];
       const deletedItems = req.body.deleted;
-
+      console.log(req.body);
       for (const page in deletedItems) {
         if (Object.hasOwnProperty.call(deletedItems, page)) {
           const selected = deletedItems[page];
@@ -119,7 +133,7 @@ module.exports = async (router, upload) => {
             collection.updateOne(
               {
                 _id: new ObjectId(page),
-                [`${column}._id`]: new ObjectId(item._id),
+                [`${column}._id`]: new ObjectId(item),
               },
               {
                 $set: {
@@ -142,12 +156,13 @@ module.exports = async (router, upload) => {
     ]),
     async (req, res) => {
       const data = req.body;
+      await main();
 
-      const category = await db
+      const category = await db.db["maliview"]
         .collection("categories")
         .findOne({ _id: ObjectId(data.category) });
 
-      const collection = db.collection("mobile");
+      const collection = db.db["maliview"].collection("mobile");
 
       if (!_.isEmpty(req.files.images)) {
         const images = req.files.images;
@@ -174,6 +189,7 @@ module.exports = async (router, upload) => {
           }
         );
         console.log(insert);
+        res.json("done");
       }
     }
   );
@@ -185,17 +201,16 @@ module.exports = async (router, upload) => {
       },
     ]),
     async (req, res) => {
-      const file = req.files;
       const data = req.body;
 
-      const category = await db.collection("categories").findOne({
+      const category = await db.current_db.collection("categories").findOne({
         _id: ObjectId(data.category),
       });
       const images = req.files.phases;
       const phase = parseInt(data.phase);
       const compress = compressImages(images, category.imageFolder);
       const compressed = await Promise.all(compress);
-      const collection = db.collection("mobile");
+      const collection = db.current_db.collection("mobile");
       const insert_data = compressed.map((item, i) => {
         return {
           _id: ObjectId(),
@@ -233,12 +248,12 @@ module.exports = async (router, upload) => {
       const images = req.files.images;
       const data = req.body;
 
-      const category = await db.collection("categories").findOne({
+      const category = await db.current_db.collection("categories").findOne({
         _id: ObjectId(data.category),
       });
       const compress = compressImages(images, category.imageFolder);
       const compressed = await Promise.all(compress);
-      const collection = db.collection("mobile");
+      const collection = db.current_db.collection("mobile");
       const insert_data = compressed.map((item, i) => {
         return {
           _id: ObjectId(),

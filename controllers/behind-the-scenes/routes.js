@@ -10,9 +10,12 @@ const {
 const _ = require("lodash");
 const utils = require("../../utils.js");
 module.exports = async (router, upload) => {
-  const db = await require("../../db.js");
+  const db = require("../../db.js");
   router.get("/behind-the-scenes", async (req, res) => {
-    const pages = await db.collection("behind-the-scenes").find({}).toArray();
+    const pages = await db.current_db
+      .collection("behind-the-scenes")
+      .find({})
+      .toArray();
 
     res.json(pages);
   });
@@ -27,12 +30,12 @@ module.exports = async (router, upload) => {
       const images = req.files.images;
       const data = req.body;
 
-      const category = await db.collection("categories").findOne({
+      const category = await db.current_db.collection("categories").findOne({
         _id: ObjectId(data.category),
       });
       const compress = compressImages(images, category.imageFolder);
       const compressed = await Promise.all(compress);
-      const collection = db.collection("behind-the-scenes");
+      const collection = db.current_db.collection("behind-the-scenes");
       const insert_data = compressed.map((item, i) => {
         return {
           _id: ObjectId(),
@@ -57,22 +60,24 @@ module.exports = async (router, upload) => {
     }
   );
   router.delete("/behind-the-scenes/phase", async (req, res) => {
-    const deleted = await db.collection("behind-the-scenes").deleteOne({
-      _id: ObjectId(req.body._id),
-    });
+    const deleted = await db.current_db
+      .collection("behind-the-scenes")
+      .deleteOne({
+        _id: ObjectId(req.body._id),
+      });
     res.json(deleted);
   });
   router.delete(
     "/behind-the-scenes",
     upload.fields([{ name: "images" }]),
     async (req, res) => {
-      const collection = db.collection(req.body.category);
+      const collection = db.current_db.collection(req.body.category);
       const promises = [];
       const deletedItems = req.body.deleted;
-
+      console.log(deletedItems);
       for (const page in deletedItems) {
         if (Object.hasOwnProperty.call(deletedItems, page)) {
-          const selected = deletedItems[page];
+          const selected = deletedItems[page].items;
           for (const item of selected) {
             const column = "images";
 
@@ -80,7 +85,7 @@ module.exports = async (router, upload) => {
               collection.updateOne(
                 {
                   _id: new ObjectId(page),
-                  [`${column}._id`]: new ObjectId(item),
+                  [`${column}._id`]: new ObjectId(item._id),
                 },
                 {
                   $set: {
@@ -97,7 +102,7 @@ module.exports = async (router, upload) => {
   );
 
   router.post(
-    "/behind-the-scenes",
+    "/behind-the-scenes/phase",
     upload.fields([
       {
         name: "images",
@@ -106,10 +111,10 @@ module.exports = async (router, upload) => {
     async (req, res) => {
       const data = req.body;
 
-      const category = await db
+      const category = await db.current_db
         .collection("categories")
         .findOne({ _id: ObjectId(data._id) });
-      const collection = db.collection("behind-the-scenes");
+      const collection = db.current_db.collection("behind-the-scenes");
       if (!_.isEmpty(req.files.images)) {
         const images = req.files.images;
         const compress = compressImages(images, category.imageFolder);

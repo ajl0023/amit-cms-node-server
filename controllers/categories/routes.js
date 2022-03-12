@@ -8,10 +8,10 @@ var boolParser = require("express-query-boolean");
 
 const url = require("url");
 module.exports = async (router, upload) => {
-  const db = await require("../../db.js");
+  const db = require("../../db.js");
 
   router.get("/categories", async (req, res) => {
-    const pages = await db.collection("categories").find().toArray();
+    const pages = await db.current_db.collection("categories").find().toArray();
 
     res.json(pages);
   });
@@ -22,8 +22,8 @@ module.exports = async (router, upload) => {
     const query = req.query;
 
     const file = req.file;
-    const collection = db.collection(data.category);
-    const category = await db.collection("categories").findOne({
+    const collection = db.current_db.collection(data.category);
+    const category = await db.current_db.collection("categories").findOne({
       _id: ObjectId(data.page_category),
     });
 

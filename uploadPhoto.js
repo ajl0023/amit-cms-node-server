@@ -1,4 +1,3 @@
-const { uploadb2, getPhotos } = require("./bblaze");
 const fs = require("fs");
 const path = require("path");
 const { randomUUID } = require("crypto");
@@ -8,13 +7,22 @@ const { promisify } = require("util");
 const root = "./images";
 const imageData = [];
 const promises = [];
+const database = "maliview";
 const mainFolder = "renders-mobile";
 const subFolder = "full";
 const bbFolder = "renders-mobile";
 const mockFolder = "./public/mock-bb-storage";
 const copyFile = promisify(fs.copyFile);
 async function main(folder) {
-  const folderPath = path.join("./images", folder, subFolder, "images");
+  const folderPath = path.join(
+    "./images",
+    database,
+    "images",
+    folder,
+
+    subFolder,
+    "images"
+  );
   const dir = fs.readdirSync(folderPath);
   const sort = dir.sort((a, b) => {
     return a.localeCompare(b, undefined, {
@@ -55,7 +63,16 @@ async function main(folder) {
     promises.push(data);
   }
 
-  const jsonPath = path.join("./images", folder, subFolder, "data.json");
+  const jsonPath = path.join(
+    "./images",
+    database,
+    "images",
+    folder,
+
+    subFolder,
+
+    "data.json"
+  );
 
   const res = await Promise.all(promises);
 

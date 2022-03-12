@@ -2,6 +2,9 @@ const { writeFileSync, mkdirsSync } = require("fs-extra");
 const { ObjectId } = require("mongodb");
 const db = require("./db");
 const path = require("path");
+const { add } = require("lodash");
+const { main, disconnect } = require("./db");
+
 async function createControllersFolder() {
   const collection = (await db).collection("categories");
   const categories = await collection.find().toArray();
@@ -48,44 +51,6 @@ async function prefix_img() {
   }
   process.exit();
 }
-async function insertIntoCarouselRenders() {
-  const collection = (await db).collection("carousel-renders");
-  const images = require("./images/renders/full/data.json").map((item) => {
-    return {
-      _id: ObjectId(),
-      order: item.order,
-      url:
-        "http://localhost:3000" +
-        item.path.replace("public", "").replace(/\\/gi, "/"),
-    };
-  });
-  const thumbs = require("./images/renders/thumbs/data.json").map((item) => {
-    return {
-      _id: ObjectId(),
-      order: item.order,
-      url:
-        "http://localhost:3000" +
-        item.path.replace("public", "").replace(/\\/gi, "/"),
-    };
-  });
-  const left = images.filter((item) => {
-    const regex = /left/gi;
-    return item.url.search(regex) > 0;
-  });
-  const right = images.filter((item) => {
-    const regex = /right/gi;
-    return item.url.search(regex) > 0;
-  });
-
-  await collection.insertOne({
-    page: "renders",
-    left,
-    right,
-    thumbs,
-    category: ObjectId("62198b001837728ee4c572e0"),
-  });
-  process.exit();
-}
 
 async function dataToJson() {
   const items = await (await db).collection("categories").find().toArray();
@@ -119,17 +84,114 @@ async function editCol() {
   process.exit();
 }
 async function addCol() {
-  const collection = (await db).collection("categories");
-
-  await collection.updateMany(
-    {},
+  await main();
+  const database = db.db["maliview"];
+  const collection = database.collection("categories");
+  const fetch = await collection.findOne({
+    _id: ObjectId("62198a93ee6bf0f2610a1c31"),
+  });
+  const endpoints = fetch.endpoints;
+  endpoints.push({
+    route: "api/behind-the-scenes/phase",
+    method: "POST",
+    name: "Add Phase",
+    type: "document",
+  });
+  endpoints_mobile = fetch.endpoints_mobile;
+  endpoints_mobile.push({
+    route: "/mobile/behind-the-scenes/phase",
+    method: "POST",
+    name: "Add Phase",
+    type: "document",
+  });
+  await collection.updateOne(
+    {
+      _id: ObjectId("62198a93ee6bf0f2610a1c31"),
+    },
     {
       $set: {
-        visible: true,
+        // "insertable.editableFields": [
+        //   {
+        //     type: "media",
+        //     name: "images",
+        //     multi: true,
+        //     client_label: "Images",
+        //   },
+        //   {
+        //     type: "integer",
+        //     name: "phase",
+
+        //     client_label: "Phase",
+        //   },
+        // ],
+        ["insertable.endpoints"]: endpoints,
+        // endpoints: [
+        //   {
+        //     route: "/api/carousel-renders",
+        //     method: "PUT",
+        //     name: "Add Images",
+        //   },
+        //   {
+        //     route: "/api/carousel-renders",
+        //     method: "DELETE",
+        //     name: "Delete Images",
+        //   },
+        // ],
+        ["insertable.endpoints_mobile"]: endpoints_mobile,
       },
     }
   );
-  process.exit(0);
+  // process.exit(0);
+  await disconnect();
 }
-createControllersFolder();
-// dataToJson();
+async function replaceCategories() {
+  await main();
+  const maliview_cat = db.db["maliview"].collection("categories");
+  const aviator_cat = db.db["aviator"].collection("categories");
+  await aviator_cat.insertMany(await maliview_cat.find().toArray());
+  await disconnect();
+}
+
+module.exports = {
+  async insertIntoCarouselRenders() {
+    const collection = db.db["maliview"].collection("carousel-renders");
+    const images =
+      require("./images/maliview/images/renders/full/data.json").map((item) => {
+        return {
+          _id: ObjectId(),
+          order: item.order,
+          url:
+            "http://localhost:3000" +
+            item.path.replace("public", "").replace(/\\/gi, "/"),
+        };
+      });
+    const thumbs =
+      require("./images/maliview/images/renders/thumbs/data.json").map(
+        (item) => {
+          return {
+            _id: ObjectId(),
+            order: item.order,
+            url:
+              "http://localhost:3000" +
+              item.path.replace("public", "").replace(/\\/gi, "/"),
+          };
+        }
+      );
+    const left = images.filter((item) => {
+      const regex = /left/gi;
+      return item.url.search(regex) > 0;
+    });
+    const right = images.filter((item) => {
+      const regex = /right/gi;
+      return item.url.search(regex) > 0;
+    });
+
+    await collection.insertOne({
+      page: "renders",
+      left,
+      right,
+      thumbs,
+      category: ObjectId("62198b001837728ee4c572e0"),
+    });
+  },
+};

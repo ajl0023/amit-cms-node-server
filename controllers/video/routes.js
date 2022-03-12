@@ -1,10 +1,10 @@
 module.exports = async (router, upload) => {
   router.get("/mobile", async (req, res) => {
-    const pages = await db.collection("mobile").find({}).toArray();
+    const pages = await db.current_db.collection("mobile").find({}).toArray();
     res.json(pages);
   });
   router.delete("/mobile", async (req, res) => {
-    const collection = db.collection(req.body.category);
+    const collection = db.current_db.collection(req.body.category);
     const promises = [];
     const deletedItems = req.body.deleted;
 

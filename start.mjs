@@ -2,8 +2,10 @@ let connection;
 
 import server from "./server.js";
 import db from "./db.js";
+
+// import test4 from "./test4.js";
 async function main() {
-  const dbIns = await db;
+  await db.main();
   server();
 }
 main();

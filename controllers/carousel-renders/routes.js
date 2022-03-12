@@ -1,36 +1,54 @@
 const { ObjectId } = require("mongodb");
+const { insertIntoCarouselRenders } = require("../../temp.js");
 const { compressImages, buildUrlsForDB } = require("../../utils.js");
 
 module.exports = async (router, upload) => {
-  const db = await require("../../db.js");
+  const db = require("../../db.js");
+
   router.get("/carousel-renders", async (req, res) => {
-    const fetched = await db
+    const fetched = await db.current_db
       .collection("carousel-renders")
       .find({}, {})
       .toArray();
 
     res.json(fetched);
   });
+  router.post("/carousel-renders/new", async (req, res) => {
+    insertIntoCarouselRenders();
+    res.json("nice");
+  });
+
   router.delete("/carousel-renders", async (req, res) => {
-    const collection = db.collection(req.body.category);
+    const collection = db.current_db.collection(req.body.category);
     const promises = [];
     const deletedItems = req.body.deleted;
 
     for (const page in deletedItems) {
       if (Object.hasOwnProperty.call(deletedItems, page)) {
-        const selected = deletedItems[page];
-        for (const item of selected) {
-          const column = item.col;
+        const items = deletedItems[page].items;
+        const columns = items.reduce((acc, item) => {
+          if (!acc[item.column]) {
+            acc[item.column] = [item];
+          } else {
+            acc[item.column].push(item);
+          }
+          return acc;
+        }, {});
+        for (const column in columns) {
+          const idsToDelete = columns[column].map((item) => {
+            return ObjectId(item._id);
+          });
 
           promises.push(
-            collection.updateOne(
+            collection.updateMany(
+              {},
               {
-                _id: new ObjectId(page),
-                [`${column}._id`]: new ObjectId(item._id),
-              },
-              {
-                $set: {
-                  [`${column}.$.url`]: null,
+                $pull: {
+                  [`${column}`]: {
+                    _id: {
+                      $in: idsToDelete,
+                    },
+                  },
                 },
               }
             )
@@ -38,9 +56,9 @@ module.exports = async (router, upload) => {
         }
       }
     }
-    await Promise.all(promises);
 
-    res.json("test");
+    await Promise.all(promises);
+    res.json({});
   });
   router.put(
     "/carousel-renders",
@@ -49,7 +67,7 @@ module.exports = async (router, upload) => {
       const images = req.files.images;
       const data = req.body;
 
-      const category = await db.collection("categories").findOne({
+      const category = await db.current_db.collection("categories").findOne({
         _id: ObjectId(data.category),
       });
 
@@ -72,7 +90,7 @@ module.exports = async (router, upload) => {
         }
       }
 
-      const collection = db.collection("carousel-renders");
+      const collection = db.current_db.collection("carousel-renders");
 
       await collection.updateOne(
         {

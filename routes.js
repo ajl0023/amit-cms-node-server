@@ -23,7 +23,7 @@ const utils = require("./utils");
 const { UUID } = require("bson");
 
 module.exports = async (router) => {
-  const db = await require("./db.js");
+  const db = await require("./db.js").db;
 
   router.get("/pages", async (req, res) => {
     if (req.query.title) {

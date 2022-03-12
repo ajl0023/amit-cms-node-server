@@ -75,7 +75,7 @@ module.exports = {
       height: metadata.height,
     };
   },
-
+  async getCurrentConnection(data) {},
   uploadImage: async function (files, parentId) {
     if (!_.isEmpty(files)) {
       for (const field in files) {
