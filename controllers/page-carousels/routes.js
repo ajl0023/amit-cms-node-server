@@ -128,4 +128,7 @@ module.exports = async (router, upload) => {
       );
     }
   );
+  router.put("/page-carousels/order", async (req, res) => {
+    console.log(23);
+  });
 };

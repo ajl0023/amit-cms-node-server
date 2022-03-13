@@ -106,92 +106,84 @@ async function addCol() {
   });
   await collection.updateOne(
     {
-      _id: ObjectId("62198a93ee6bf0f2610a1c31"),
+      _id: ObjectId("621ae8462b5171ada3bf1987"),
     },
     {
-      $set: {
-        // "insertable.editableFields": [
-        //   {
-        //     type: "media",
-        //     name: "images",
-        //     multi: true,
-        //     client_label: "Images",
-        //   },
-        //   {
-        //     type: "integer",
-        //     name: "phase",
-
-        //     client_label: "Phase",
-        //   },
-        // ],
-        ["insertable.endpoints"]: endpoints,
-        // endpoints: [
-        //   {
-        //     route: "/api/carousel-renders",
-        //     method: "PUT",
-        //     name: "Add Images",
-        //   },
-        //   {
-        //     route: "/api/carousel-renders",
-        //     method: "DELETE",
-        //     name: "Delete Images",
-        //   },
-        // ],
-        ["insertable.endpoints_mobile"]: endpoints_mobile,
+      $push: {
+        endpoints: {
+          $each: [
+            {
+              route: "/api/bg-pages/order",
+              method: "PUT",
+              name: "Save",
+            },
+          ],
+        },
+        endpoints_mobile: {
+          $each: [
+            {
+              route: "/api/mobile/order",
+              method: "PUT",
+              name: "Save",
+            },
+          ],
+        },
       },
     }
   );
   // process.exit(0);
   await disconnect();
 }
+
 async function replaceCategories() {
   await main();
   const maliview_cat = db.db["maliview"].collection("categories");
   const aviator_cat = db.db["aviator"].collection("categories");
+  await aviator_cat.deleteMany();
   await aviator_cat.insertMany(await maliview_cat.find().toArray());
   await disconnect();
 }
+replaceCategories();
+// module.exports = {
+//   async insertIntoCarouselRenders() {
+//     const collection = db.db["maliview"].collection("carousel-renders");
+//     const images =
+//       require("./images/maliview/images/renders/full/data.json").map((item) => {
+//         return {
+//           _id: ObjectId(),
+//           order: item.order,
+//           url:
+//             "http://localhost:3000" +
+//             item.path.replace("public", "").replace(/\\/gi, "/"),
+//         };
+//       });
+//     const thumbs =
+//       require("./images/maliview/images/renders/thumbs/data.json").map(
+//         (item) => {
+//           return {
+//             _id: ObjectId(),
+//             order: item.order,
+//             url:
+//               "http://localhost:3000" +
+//               item.path.replace("public", "").replace(/\\/gi, "/"),
+//           };
+//         }
+//       );
+//     const left = images.filter((item) => {
+//       const regex = /left/gi;
+//       return item.url.search(regex) > 0;
+//     });
+//     const right = images.filter((item) => {
+//       const regex = /right/gi;
+//       return item.url.search(regex) > 0;
+//     });
 
-module.exports = {
-  async insertIntoCarouselRenders() {
-    const collection = db.db["maliview"].collection("carousel-renders");
-    const images =
-      require("./images/maliview/images/renders/full/data.json").map((item) => {
-        return {
-          _id: ObjectId(),
-          order: item.order,
-          url:
-            "http://localhost:3000" +
-            item.path.replace("public", "").replace(/\\/gi, "/"),
-        };
-      });
-    const thumbs =
-      require("./images/maliview/images/renders/thumbs/data.json").map(
-        (item) => {
-          return {
-            _id: ObjectId(),
-            order: item.order,
-            url:
-              "http://localhost:3000" +
-              item.path.replace("public", "").replace(/\\/gi, "/"),
-          };
-        }
-      );
-    const left = images.filter((item) => {
-      const regex = /left/gi;
-      return item.url.search(regex) > 0;
-    });
-    const right = images.filter((item) => {
-      const regex = /right/gi;
-      return item.url.search(regex) > 0;
-    });
-
-    await collection.insertOne({
-      page: "renders",
-      left,
-      right,
-      thumbs,
-      category: ObjectId("62198b001837728ee4c572e0"),
-    });
-  },
-};
+//     await collection.insertOne({
+//       page: "renders",
+//       left,
+//       right,
+//       thumbs,
+//       category: ObjectId("62198b001837728ee4c572e0"),
+//     });
+//   },
+// };

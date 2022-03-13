@@ -55,7 +55,7 @@ module.exports = async (router, upload) => {
       }),
     });
 
-    res.json("nice");
+    res.json({});
   });
   router.delete(
     "/mobile/behind-the-scenes",
@@ -91,7 +91,7 @@ module.exports = async (router, upload) => {
         }
       }
       const update = await Promise.all(promises);
-      res.json("finished");
+      res.json({});
     }
   );
   router.delete(
@@ -113,7 +113,7 @@ module.exports = async (router, upload) => {
       );
 
       const update = await Promise.all(promises);
-      res.json("finished");
+      res.json({});
     }
   );
   router.delete(
@@ -145,6 +145,7 @@ module.exports = async (router, upload) => {
         }
       }
       const update = await Promise.all(promises);
+      res.json({});
     }
   );
   router.post(
@@ -189,7 +190,7 @@ module.exports = async (router, upload) => {
           }
         );
         console.log(insert);
-        res.json("done");
+        res.json({});
       }
     }
   );
@@ -234,7 +235,7 @@ module.exports = async (router, upload) => {
           arrayFilters: [{ "outer.phase": phase }],
         }
       );
-      res.json("nice");
+      res.json({});
     }
   );
   router.put(
@@ -274,6 +275,7 @@ module.exports = async (router, upload) => {
           },
         }
       );
+      res.json({});
     }
   );
 };

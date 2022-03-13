@@ -1,5 +1,5 @@
 const { ObjectId } = require("mongodb");
-const { insertIntoCarouselRenders } = require("../../temp.js");
+// const { insertIntoCarouselRenders } = require("../../temp.js");
 const { compressImages, buildUrlsForDB } = require("../../utils.js");
 
 module.exports = async (router, upload) => {
@@ -14,7 +14,7 @@ module.exports = async (router, upload) => {
     res.json(fetched);
   });
   router.post("/carousel-renders/new", async (req, res) => {
-    insertIntoCarouselRenders();
+    // insertIntoCarouselRenders();
     res.json("nice");
   });
 

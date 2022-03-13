@@ -71,13 +71,14 @@ module.exports = async (router, upload) => {
     "/behind-the-scenes",
     upload.fields([{ name: "images" }]),
     async (req, res) => {
-      const collection = db.current_db.collection(req.body.category);
+      const collection = db.current_db.collection("behind-the-scenes");
       const promises = [];
       const deletedItems = req.body.deleted;
-      console.log(deletedItems);
+
       for (const page in deletedItems) {
         if (Object.hasOwnProperty.call(deletedItems, page)) {
           const selected = deletedItems[page].items;
+
           for (const item of selected) {
             const column = "images";
 
@@ -88,8 +89,10 @@ module.exports = async (router, upload) => {
                   [`${column}._id`]: new ObjectId(item._id),
                 },
                 {
-                  $set: {
-                    [`${column}.$.url`]: null,
+                  $pull: {
+                    [`${[column]}`]: {
+                      _id: ObjectId(item._id),
+                    },
                   },
                 }
               )
@@ -98,6 +101,8 @@ module.exports = async (router, upload) => {
         }
       }
       const update = await Promise.all(promises);
+
+      res.json({});
     }
   );
 
