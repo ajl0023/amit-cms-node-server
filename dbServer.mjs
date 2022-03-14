@@ -4,5 +4,5 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 const mongod = await MongoMemoryServer.create();
 
 const uri = mongod.getUri();
-console.log(uri);
+
 // The Server can be stopped again with

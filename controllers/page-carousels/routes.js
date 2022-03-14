@@ -2,6 +2,8 @@ const { ObjectId } = require("mongodb");
 const fs = require("fs");
 const { randomUUID } = require("crypto");
 const path = require("path");
+var Promise = require("bluebird");
+
 const {
   convertToObjectId,
   compressImages,
@@ -54,7 +56,7 @@ module.exports = async (router, upload) => {
       },
     });
 
-    res.json("nice");
+    res.json({});
   });
   router.delete(
     "/page-carousels",
@@ -87,6 +89,7 @@ module.exports = async (router, upload) => {
         }
       }
       const update = await Promise.all(promises);
+      res.json({});
     }
   );
   router.put(
@@ -126,9 +129,24 @@ module.exports = async (router, upload) => {
           },
         }
       );
+      res.json({});
     }
   );
   router.put("/page-carousels/order", async (req, res) => {
-    console.log(23);
+    const req_data = req.body;
+    const set_id = req_data.set_id;
+    const ordered_images = req_data.images;
+    const collection = db.current_db.collection("page-carousels");
+    Promise.each(ordered_images, (img) => {
+      return collection.updateOne(
+        { _id: ObjectId(set_id), "images._id": ObjectId(img._id) },
+        {
+          $set: {
+            "images.$.order": img.order,
+          },
+        }
+      );
+    });
+    res.json({});
   });
 };

@@ -3,9 +3,7 @@ const { MongoClient } = require("mongodb");
 let connection;
 
 async function main() {
-  const uri =
-    "mongodb+srv://a:a@cluster0.2e6a1.mongodb.net/maliview?retryWrites=true&w=majority";
-
+  const uri = process.env.URI;
   const client = new MongoClient(uri);
 
   connection = await client.connect();
@@ -22,7 +20,7 @@ const dbs = {
   aviator: null,
   db: null,
 };
-let current_db;
+
 async function setCollection(collection) {
   module.exports["current_db"] = await dbs[collection];
 }

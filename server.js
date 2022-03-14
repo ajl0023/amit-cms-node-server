@@ -22,10 +22,6 @@ module.exports = () => {
   app.use(express.json());
   app.use(cors());
   const port = 3000;
-  app.get("/api/test", async (req, res, next) => {
-    console.log(34);
-    res.json(3);
-  });
 
   app.use("/api", async (req, res, next) => {
     const cookies = req.cookies;
@@ -74,15 +70,10 @@ module.exports = () => {
 
   var router = express.Router();
 
-  const knex = require("./knexInstance");
   const router2 = express.Router();
   const router3 = express.Router();
-  const mobileRoutes = express.Router();
 
   const boolParser = require("express-query-boolean");
-  const { Model } = require("objection");
-
-  Model.knex(knex);
 
   // require("./routes")(router, db);
   require("./controllers/bg-pages/routes")(router, upload);

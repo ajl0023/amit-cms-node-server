@@ -2,6 +2,7 @@ const { ObjectId } = require("mongodb");
 const fs = require("fs");
 const { randomUUID } = require("crypto");
 const path = require("path");
+var Promise = require("bluebird");
 const {
   convertToObjectId,
   compressImages,
@@ -17,6 +18,53 @@ module.exports = async (router, upload) => {
     const pages = await db.current_db.collection("mobile").find({}).toArray();
     res.json(pages);
   });
+  router.post(
+    "/mobile/behind-the-scenes/phase",
+    upload.fields([
+      {
+        name: "images",
+      },
+    ]),
+    async (req, res) => {
+      const data = req.body;
+      await main();
+
+      const category = await db.db["maliview"]
+        .collection("categories")
+        .findOne({ _id: ObjectId(data.category) });
+
+      const collection = db.db["maliview"].collection("mobile");
+
+      if (!_.isEmpty(req.files.images)) {
+        const images = req.files.images;
+
+        const compress = compressImages(images, category.imageFolder);
+        const compressed = await Promise.all(compress);
+        const insert_data = {
+          images: compressed.map((item, i) => {
+            return {
+              _id: ObjectId(),
+              url: buildUrlsForDB(item, category.imageFolder),
+              order: i,
+            };
+          }),
+          phase: req.body.phase ? parseInt(req.body.phase) : 0,
+        };
+        const insert = await collection.updateOne(
+          {
+            _id: ObjectId(data._id),
+          },
+          {
+            $push: {
+              phases: insert_data,
+            },
+          }
+        );
+
+        res.json({});
+      }
+    }
+  );
   router.post("/mobile/new", async (req, res) => {
     const database = "aviator";
     const currentFolder = "bg-pages";
@@ -64,7 +112,7 @@ module.exports = async (router, upload) => {
       const collection = db.current_db.collection("mobile");
       const promises = [];
       const deletedItems = req.body.deleted;
-      console.log(deletedItems);
+
       for (const page in deletedItems) {
         if (Object.hasOwnProperty.call(deletedItems, page)) {
           const selected = deletedItems[page];
@@ -99,10 +147,9 @@ module.exports = async (router, upload) => {
     upload.fields([{ name: "images" }]),
     async (req, res) => {
       const collection = db.current_db.collection("mobile");
-      const promises = [];
-      const deletedItems = req.body.phase;
+      console.log(req.body.phase);
       await collection.updateOne(
-        { _id: ObjectId(req.body.page) },
+        { _id: ObjectId(req.body._id) },
         {
           $pull: {
             phases: {
@@ -112,7 +159,6 @@ module.exports = async (router, upload) => {
         }
       );
 
-      const update = await Promise.all(promises);
       res.json({});
     }
   );
@@ -123,7 +169,7 @@ module.exports = async (router, upload) => {
       const collection = db.current_db.collection(req.body.category);
       const promises = [];
       const deletedItems = req.body.deleted;
-      console.log(req.body);
+
       for (const page in deletedItems) {
         if (Object.hasOwnProperty.call(deletedItems, page)) {
           const selected = deletedItems[page];
@@ -148,52 +194,7 @@ module.exports = async (router, upload) => {
       res.json({});
     }
   );
-  router.post(
-    "/mobile/behind-the-scenes",
-    upload.fields([
-      {
-        name: "images",
-      },
-    ]),
-    async (req, res) => {
-      const data = req.body;
-      await main();
 
-      const category = await db.db["maliview"]
-        .collection("categories")
-        .findOne({ _id: ObjectId(data.category) });
-
-      const collection = db.db["maliview"].collection("mobile");
-
-      if (!_.isEmpty(req.files.images)) {
-        const images = req.files.images;
-        const compress = compressImages(images, category.imageFolder);
-        const compressed = await Promise.all(compress);
-        const insert_data = {
-          images: compressed.map((item, i) => {
-            return {
-              _id: ObjectId(),
-              url: buildUrlsForDB(item, category.imageFolder),
-              order: i,
-            };
-          }),
-          phase: req.body.phase ? parseInt(req.body.phase) : 0,
-        };
-        const insert = await collection.updateOne(
-          {
-            _id: ObjectId(data._id),
-          },
-          {
-            $push: {
-              phases: insert_data,
-            },
-          }
-        );
-        console.log(insert);
-        res.json({});
-      }
-    }
-  );
   router.put(
     "/mobile/behind-the-scenes",
     upload.fields([
@@ -247,34 +248,100 @@ module.exports = async (router, upload) => {
     ]),
     async (req, res) => {
       const images = req.files.images;
+
       const data = req.body;
 
       const category = await db.current_db.collection("categories").findOne({
         _id: ObjectId(data.category),
       });
-      const compress = compressImages(images, category.imageFolder);
-      const compressed = await Promise.all(compress);
+
       const collection = db.current_db.collection("mobile");
-      const insert_data = compressed.map((item, i) => {
-        return {
-          _id: ObjectId(),
-          url: buildUrlsForDB(item, category.imageFolder),
-          order: i,
+
+      const fields = category.editableFields_mobile;
+
+      const input_data = {
+        $set: {},
+        $push: {},
+      };
+      for (const field of fields) {
+        if (field.type === "string") {
+          input_data["$set"][field.name] = data[field.name];
+        }
+      }
+
+      if (images) {
+        const compress = compressImages(images, category.imageFolder);
+        const compressed = await Promise.all(compress);
+
+        input_data["$push"]["images"] = {
+          $each: compressed.map((item, i) => {
+            return {
+              _id: ObjectId(),
+              url: buildUrlsForDB(item, category.imageFolder),
+              order: i,
+            };
+          }),
         };
-      });
+      }
 
       await collection.updateOne(
         {
           _id: ObjectId(data._id),
         },
         {
-          $push: {
-            images: {
-              $each: insert_data,
-            },
+          ...input_data,
+        }
+      );
+      res.json({});
+    }
+  );
+  router.put("/mobile/order", async (req, res) => {
+    const req_data = req.body;
+    const set_id = req_data.set_id;
+    const ordered_images = req_data.images;
+    const collection = db.current_db.collection("mobile");
+    Promise.each(ordered_images, (img) => {
+      return collection.updateOne(
+        { _id: ObjectId(set_id), "images._id": ObjectId(img._id) },
+        {
+          $set: {
+            "images.$.order": img.order,
           },
         }
       );
+    });
+    res.json({});
+  });
+  router.put(
+    "/mobile/behind-the-scenes/order",
+
+    async (req, res) => {
+      const req_data = req.body;
+      const set_id = req_data.set_id;
+      const ordered_images = req_data.images;
+      const phase = req_data.phase;
+
+      const collection = db.current_db.collection("mobile");
+      Promise.each(ordered_images, (img) => {
+        return collection.updateOne(
+          {
+            _id: new ObjectId(set_id),
+          },
+          {
+            $set: {
+              "phases.$[outer].images.$[image].order": img.order,
+            },
+          },
+          {
+            arrayFilters: [
+              { "outer.phase": phase },
+              {
+                "image._id": ObjectId(img._id),
+              },
+            ],
+          }
+        );
+      });
       res.json({});
     }
   );

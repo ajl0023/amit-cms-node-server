@@ -1,2 +1,2 @@
-git add . && git commit -m "adding drag and drop server functionality" && git push origin main
+git add . && git commit -m "minor convenience changes" && git push origin main
 

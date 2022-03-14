@@ -1,24 +1,14 @@
-const express = require("express");
-const app = express();
-const port = 3000;
 const crypto = require("crypto");
 const sharp = require("sharp");
-var router = express.Router();
 const fs = require("fs-extra");
-const router2 = express.Router();
 const axios = require("axios").default;
-const streamifier = require("streamifier");
 var _ = require("lodash");
 const ploptest = require("./ploptest");
 
 const path = require("path");
 const { ObjectId } = require("mongodb");
-const { promisify } = require("util");
-const Images = require("./models/image/image").model;
-let count = 0;
-const stream = require("stream");
 
-const pipeline = promisify(stream.pipeline);
+const stream = require("stream");
 
 module.exports = {
   async downloadImage(url) {
@@ -58,9 +48,7 @@ module.exports = {
 
     return compressed;
   },
-  async getEditFields() {
-    const fields = await db;
-  },
+  async getEditFields() {},
   buildUrlsForDB(file, folder) {
     const host = "http://localhost:3000/";
     const base = "mock-bb-storage";
@@ -75,7 +63,7 @@ module.exports = {
       height: metadata.height,
     };
   },
-  async getCurrentConnection(data) {},
+  async getCurrentConnection() {},
   uploadImage: async function (files, parentId) {
     if (!_.isEmpty(files)) {
       for (const field in files) {
@@ -85,7 +73,7 @@ module.exports = {
             const pathToSave = path.join("./public/images", item.originalname);
             return fs
               .writeFile(pathToSave, item.buffer)
-              .then(async (file) => {
+              .then(async () => {
                 return {
                   file: item.originalname,
                   uploadData: await this.getImageMetaData(item.buffer),
@@ -127,8 +115,6 @@ module.exports = {
     for (let i = 0; i < data.length; i++) {
       const element = data[i];
 
-      const keys = Object.keys(element);
-
       for (const key in element) {
         const item = element[key];
 
@@ -152,7 +138,6 @@ module.exports = {
   async generateModel(name, cols, has_media) {
     for (const type in cols) {
       if (Object.hasOwnProperty.call(cols, type)) {
-        const element = cols[type];
       }
     }
 
@@ -224,9 +209,7 @@ module.exports = {
     return JSON.parse(file);
   },
 
-  async getMediaCols(Model) {
-    const cols = Model.clientCols;
-  },
+  async getMediaCols(Model) {},
   async compressImage(buffer) {
     const metadata = await sharp(buffer).metadata();
     const image = sharp(buffer);

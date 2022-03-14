@@ -7,6 +7,8 @@ const {
   compressImages,
   buildUrlsForDB,
 } = require("../../utils.js");
+var Promise = require("bluebird");
+
 const _ = require("lodash");
 const utils = require("../../utils.js");
 module.exports = async (router, upload) => {
@@ -56,7 +58,7 @@ module.exports = async (router, upload) => {
           },
         }
       );
-      res.json("nice");
+      res.json({});
     }
   );
   router.delete("/behind-the-scenes/phase", async (req, res) => {
@@ -65,7 +67,7 @@ module.exports = async (router, upload) => {
       .deleteOne({
         _id: ObjectId(req.body._id),
       });
-    res.json(deleted);
+    res.json({});
   });
   router.delete(
     "/behind-the-scenes",
@@ -120,7 +122,7 @@ module.exports = async (router, upload) => {
         .collection("categories")
         .findOne({ _id: ObjectId(data._id) });
       const collection = db.current_db.collection("behind-the-scenes");
-      if (!_.isEmpty(req.files.images)) {
+      if (req.files && !_.isEmpty(req.files.images)) {
         const images = req.files.images;
         const compress = compressImages(images, category.imageFolder);
         const compressed = await Promise.all(compress);
@@ -144,8 +146,27 @@ module.exports = async (router, upload) => {
           category: ObjectId(category._id),
         };
         const insert = await collection.insertOne(insert_data);
-        res.json(insert);
+        res.json({});
+      } else {
+        res.json({});
       }
     }
   );
+  router.put("/behind-the-scenes/order", async (req, res) => {
+    const req_data = req.body;
+    const set_id = req_data.set_id;
+    const ordered_images = req_data.images;
+    const collection = db.current_db.collection("behind-the-scenes");
+    Promise.each(ordered_images, (img) => {
+      return collection.updateOne(
+        { _id: ObjectId(set_id), "images._id": ObjectId(img._id) },
+        {
+          $set: {
+            "images.$.order": img.order,
+          },
+        }
+      );
+    });
+    res.json({});
+  });
 };

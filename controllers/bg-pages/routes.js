@@ -51,7 +51,7 @@ module.exports = async (router, upload) => {
       },
     });
 
-    res.json("nice");
+    res.json({});
   });
   router.delete("/bg-pages", async (req, res) => {
     const collection = db.current_db.collection(req.body.category);
@@ -114,7 +114,7 @@ module.exports = async (router, upload) => {
     if (video_url) {
       insertQuery["$set"]["video_url"] = video_url;
     }
-    console.log(insertQuery);
+
     await collection.updateOne(
       {
         _id: ObjectId(data._id),
@@ -123,6 +123,6 @@ module.exports = async (router, upload) => {
         ...insertQuery,
       }
     );
-    res.json("nice");
+    res.json({});
   });
 };

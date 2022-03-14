@@ -32,6 +32,6 @@ module.exports = async (router, upload) => {
       }
     }
     await Promise.all(promises);
-    res.json("yo");
+    res.json({});
   });
 };

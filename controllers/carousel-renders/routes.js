@@ -1,7 +1,7 @@
 const { ObjectId } = require("mongodb");
 // const { insertIntoCarouselRenders } = require("../../temp.js");
 const { compressImages, buildUrlsForDB } = require("../../utils.js");
-
+var Promise = require("bluebird");
 module.exports = async (router, upload) => {
   const db = require("../../db.js");
 
@@ -13,9 +13,28 @@ module.exports = async (router, upload) => {
 
     res.json(fetched);
   });
+  router.put("/carousel-renders/order", async (req, res) => {
+    const req_data = req.body;
+    const set_id = req_data.set_id;
+    const ordered_images = req_data.images;
+    const column = req.body.column;
+    const collection = db.current_db.collection("carousel-renders");
+
+    Promise.each(ordered_images, (img) => {
+      return collection.updateOne(
+        { _id: ObjectId(set_id), [`${column}._id`]: ObjectId(img._id) },
+        {
+          $set: {
+            [`${column}.$.order`]: img.order,
+          },
+        }
+      );
+    });
+    res.json({});
+  });
   router.post("/carousel-renders/new", async (req, res) => {
     // insertIntoCarouselRenders();
-    res.json("nice");
+    res.json({});
   });
 
   router.delete("/carousel-renders", async (req, res) => {
@@ -100,6 +119,7 @@ module.exports = async (router, upload) => {
           $push: queries,
         }
       );
+      res.json({});
     }
   );
 };
