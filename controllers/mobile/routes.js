@@ -97,7 +97,7 @@ module.exports = async (router, upload) => {
           _id: ObjectId(),
 
           url:
-            "http://localhost:3000" +
+            `http://localhost:${process.env.SERVER_PORT}` +
             img.path.replace("public", "").replace(/\\/gi, "/"),
         };
       }),

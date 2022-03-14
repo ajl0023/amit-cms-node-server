@@ -45,7 +45,7 @@ module.exports = async (router, upload) => {
       category: ObjectId("62198acfee737dc5b139ea71"),
       image: {
         url:
-          "http://localhost:3000/" +
+          `http://localhost:${process.env.SERVER_PORT}/` +
           imagesPath[0].path.replace(/public\\/i, "").replace(/\\/gi, "/"),
         _id: ObjectId(),
       },

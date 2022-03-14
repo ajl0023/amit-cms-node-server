@@ -2,9 +2,9 @@ const { ObjectId } = require("mongodb");
 const { doc } = require("prettier");
 require("dotenv").config();
 const { main, db, disconnect } = require("./db");
-let dev = false;
+let dev = true;
 const server_url = "http://test12312312356415616.store/";
-const local_url = "http://localhost:3000/";
+const local_url = `http://localhost:${process.env.SERVER_PORT}/`;
 let old_url, new_url;
 if (dev) {
   old_url = server_url;

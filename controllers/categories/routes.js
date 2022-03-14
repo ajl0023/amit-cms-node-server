@@ -36,7 +36,8 @@ module.exports = async (router, upload) => {
     const saveFolder = category.imageFolder;
     const filePath = path.join(saveFolder, randomUUID() + file.originalname);
     const new_url =
-      "http://localhost:3000/" + path.join("mock-bb-storage", filePath);
+      `http://localhost:${process.env.SERVER_PORT}/` +
+      path.join("mock-bb-storage", filePath);
     const savePath = path.posix.join("public", "mock-bb-storage", filePath);
 
     fs.writeFileSync(savePath, file.buffer);

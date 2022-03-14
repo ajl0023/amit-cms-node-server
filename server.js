@@ -8,6 +8,7 @@ const { getCurrentConnection } = require("./utils");
 const { db, setCollection } = require("./db");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const url = require("url");
 const storage = multer.memoryStorage();
 
 const upload = multer({ storage: storage });
@@ -21,11 +22,11 @@ module.exports = () => {
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
   app.use(cors());
-  const port = 3000;
+  const port = 8080;
 
   app.use("/api", async (req, res, next) => {
     const cookies = req.cookies;
-
+    console.log(cookies);
     const collection = cookies.collection;
 
     await setCollection(collection);
@@ -36,7 +37,14 @@ module.exports = () => {
   app.use(
     "/mock-bb-storage",
 
-    async (req, res) => {
+    async (req, res, next) => {
+      if (!req.query.size) {
+        console.log(req.originalUrl);
+        res.sendFile("public/" + decodeURIComponent(req.originalUrl), {
+          root: __dirname,
+        });
+        return;
+      }
       const formatted_url = decodeURIComponent(req.originalUrl);
       const filePath = path.posix.join("public", formatted_url);
       const fileName = path.parse(filePath);
@@ -64,7 +72,6 @@ module.exports = () => {
           root: __dirname,
         });
       });
-      // });
     }
   );
 

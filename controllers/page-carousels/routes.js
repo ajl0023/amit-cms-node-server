@@ -18,7 +18,8 @@ module.exports = async (router, upload) => {
       .collection("page-carousels")
       .find({})
       .toArray();
-    res.json(pages);
+
+    res.json(pages); 
   });
   router.post("/page-carousels/new", async (req, res) => {
     const database = "aviator";

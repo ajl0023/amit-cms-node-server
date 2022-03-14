@@ -31,7 +31,7 @@ module.exports = {
           new_fileName
         );
 
-        if (metadata.width >= 950) {
+        if (metadata.width >= 9000) {
           return sharpInst
             .resize({ width: 900 })
             .toFile(savePath)
@@ -50,7 +50,7 @@ module.exports = {
   },
   async getEditFields() {},
   buildUrlsForDB(file, folder) {
-    const host = "http://localhost:3000/";
+    const host = `http://localhost:${process.env.SERVER_PORT}/`;
     const base = "mock-bb-storage";
 
     const url = host + path.join(base, folder, file).split(path.sep).join("/");
