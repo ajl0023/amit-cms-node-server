@@ -31,9 +31,9 @@ module.exports = {
           new_fileName
         );
 
-        if (metadata.width >= 9000) {
+        if (metadata.width >= 1200) {
           return sharpInst
-            .resize({ width: 900 })
+            .resize({ width: 1100 })
             .toFile(savePath)
             .then(() => {
               return new_fileName;
