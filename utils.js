@@ -3,7 +3,7 @@ const sharp = require("sharp");
 const fs = require("fs-extra");
 const axios = require("axios").default;
 var _ = require("lodash");
-const ploptest = require("./ploptest");
+
 
 const path = require("path");
 const { ObjectId } = require("mongodb");
@@ -48,7 +48,7 @@ module.exports = {
 
     return compressed;
   },
-  async getEditFields() {},
+
   buildUrlsForDB(file, folder) {
     const host = `http://localhost:${process.env.SERVER_PORT}/`;
     const base = "mock-bb-storage";
@@ -135,35 +135,7 @@ module.exports = {
 
     return data;
   },
-  async generateModel(name, cols, has_media) {
-    for (const type in cols) {
-      if (Object.hasOwnProperty.call(cols, type)) {
-      }
-    }
 
-    const view = {
-      modelName: name.charAt(0).toUpperCase() + name.slice(1),
-      tableName: name,
-      requireds: [],
-      properties: cols,
-
-      has_media: Boolean(has_media),
-      is_parent: name === "category_master",
-    };
-
-    if (
-      cols.find((item) => {
-        return item.schema.name === "label";
-      }) &&
-      cols.find((item) => {
-        return item.schema.name === "parentId";
-      })
-    ) {
-      view["has_parent"] = true;
-    }
-
-    ploptest(view);
-  },
   ObjToArr(obj) {
     return Object.entries(obj).map(([k, v]) => {
       return { ...v, name: _.startCase(k) };

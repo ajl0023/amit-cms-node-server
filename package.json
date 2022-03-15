@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --signal SIGINT ./start.mjs"
+    "start": "node ./utils/cleanPublic.js && nodemon --signal SIGINT ./start.mjs"
   },
   "nodemonConfig": {},
   "author": "",
@@ -23,6 +23,7 @@
     "express": "^4.17.2",
     "express-imgwiz": "^0.1.6",
     "express-query-boolean": "^2.0.0",
+    "filehound": "^1.17.5",
     "fs-extra": "^10.0.0",
     "heroku": "^7.59.2",
     "knex": "^1.0.1",
@@ -44,5 +45,8 @@
     "prettier": "^2.5.1",
     "sharp": "^0.29.3",
     "streamifier": "^0.1.1"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
   }
 }
