@@ -39,13 +39,13 @@ module.exports = () => {
 
     async (req, res, next) => {
       if (!req.query.size) {
-        console.log(req.originalUrl);
         res.sendFile("public/" + decodeURIComponent(req.originalUrl), {
           root: __dirname,
         });
         return;
       }
-      const formatted_url = decodeURIComponent(req.originalUrl);
+
+      const formatted_url = decodeURIComponent(req._parsedUrl.pathname);
       const filePath = path.posix.join("public", formatted_url);
       const fileName = path.parse(filePath);
       const sharpStream = sharp({
