@@ -18,24 +18,17 @@ var whitelist = [
   "http://localhost:3002",
   "https://623273d60760411c96d95ea3--competent-shaw-e15e44.netlify.app/",
 ];
+var corsOptions = {
+  origin: whitelist,
+  credentials: true,
+};
 module.exports = () => {
   const express = require("express");
   const app = express();
   app.use(cookieParser());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
-  app.use(
-    cors({
-      origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
-      credentials: true,
-    })
-  );
+  app.use(cors(corsOptions));
   const port = 8080;
   require("./controllers/auth/routes")(app, upload);
   app.post("/auth/test", (req, res) => {
@@ -51,6 +44,7 @@ module.exports = () => {
       const admin = await users.findOne({
         username: "admin",
       });
+      console.log(admin);
       if (admin.access_token === token) {
         req.user = {
           is_loggedIn: true,
