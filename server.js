@@ -24,6 +24,9 @@ module.exports = () => {
   app.use(cors());
   const port = 8080;
   require("./controllers/auth/routes")(app, upload);
+  app.post("/auth/test", (req, res) => {
+    res.json("to");
+  });
   app.use("/api", async (req, res, next) => {
     const cookies = req.cookies;
 
