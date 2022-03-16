@@ -19,7 +19,7 @@ module.exports = async (router, upload) => {
       .find({})
       .toArray();
 
-    res.json(pages); 
+    res.json(pages);
   });
   router.post("/page-carousels/new", async (req, res) => {
     const database = "aviator";
@@ -80,8 +80,10 @@ module.exports = async (router, upload) => {
                   [`${column}._id`]: new ObjectId(item._id),
                 },
                 {
-                  $set: {
-                    [`${column}.$.url`]: null,
+                  $pull: {
+                    [column]: {
+                      _id: ObjectId(item._id),
+                    },
                   },
                 }
               )

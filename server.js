@@ -14,14 +14,28 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 require("dotenv").config();
-
+var whitelist = [
+  "http://localhost:3002",
+  "https://623273d60760411c96d95ea3--competent-shaw-e15e44.netlify.app/",
+];
 module.exports = () => {
   const express = require("express");
   const app = express();
   app.use(cookieParser());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
+    })
+  );
   const port = 8080;
   require("./controllers/auth/routes")(app, upload);
   app.post("/auth/test", (req, res) => {
@@ -56,7 +70,7 @@ module.exports = () => {
     const cookies = req.cookies;
 
     const collection = cookies.collection;
-
+    req.collection = collection;
     await setCollection(collection);
 
     next();
@@ -115,6 +129,7 @@ module.exports = () => {
   require("./controllers/bg-pages/routes")(router, upload);
   require("./controllers/categories/routes")(router, upload);
   require("./controllers/mobile/routes")(router, upload);
+  require("./controllers/collection/routes")(router, upload);
   require("./controllers/behind-the-scenes/routes")(router, upload);
   require("./controllers/page-carousels/routes")(router, upload);
   require("./controllers/carousel-renders/routes")(router, upload);

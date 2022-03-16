@@ -176,16 +176,19 @@ module.exports = async (router, upload) => {
           for (const item of selected) {
             const column = "images";
 
-            collection.updateOne(
-              {
-                _id: new ObjectId(page),
-                [`${column}._id`]: new ObjectId(item),
-              },
-              {
-                $set: {
-                  [`${column}.$.url`]: null,
+            promises.push(
+              collection.updateOne(
+                {
+                  _id: new ObjectId(page),
                 },
-              }
+                {
+                  $pull: {
+                    [column]: {
+                      _id: ObjectId(item),
+                    },
+                  },
+                }
+              )
             );
           }
         }
