@@ -1,2 +1,2 @@
-git add . && git commit -m "added user auth" && git push origin main
+git add . && git commit -m "cleaning up user auth" && git push origin main
 
