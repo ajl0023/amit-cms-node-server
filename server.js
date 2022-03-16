@@ -5,7 +5,7 @@ const path = require("path");
 const sharp = require("sharp");
 const multer = require("multer");
 const { getCurrentConnection } = require("./utils");
-const { db, setCollection } = require("./db");
+const { db, setCollection, current_db } = require("./db");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const url = require("url");
@@ -23,10 +23,35 @@ module.exports = () => {
   app.use(express.json());
   app.use(cors());
   const port = 8080;
-
+  require("./controllers/auth/routes")(app, upload);
   app.use("/api", async (req, res, next) => {
     const cookies = req.cookies;
-    console.log(cookies);
+
+    const users = await db["users"].collection("users");
+    const token = cookies.access_token;
+
+    if (token) {
+      const admin = await users.findOne({
+        username: "admin",
+      });
+      if (admin.access_token === token) {
+        req.user = {
+          is_loggedIn: true,
+        };
+
+        next();
+      } else {
+        res.status(403).json();
+        return;
+      }
+    } else {
+      res.status(403).json();
+      return;
+    }
+  });
+  app.use("/api", async (req, res, next) => {
+    const cookies = req.cookies;
+
     const collection = cookies.collection;
 
     await setCollection(collection);
@@ -83,6 +108,7 @@ module.exports = () => {
   const boolParser = require("express-query-boolean");
 
   // require("./routes")(router, db);
+  require("./controllers/user/routes")(router, upload);
   require("./controllers/bg-pages/routes")(router, upload);
   require("./controllers/categories/routes")(router, upload);
   require("./controllers/mobile/routes")(router, upload);
@@ -99,9 +125,7 @@ module.exports = () => {
   app.use("/mock-bb-storage", () => {});
   app.use(router2);
   app.use("/db", router3);
-  router.post("collections", () => {
-    require("./db").main("maliview");
-  });
+
   const server = app.listen(port, () => {
     console.log(`listening on port ${port}`);
   });

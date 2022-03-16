@@ -147,7 +147,7 @@ module.exports = async (router, upload) => {
     upload.fields([{ name: "images" }]),
     async (req, res) => {
       const collection = db.current_db.collection("mobile");
-      console.log(req.body.phase);
+
       await collection.updateOne(
         { _id: ObjectId(req.body._id) },
         {

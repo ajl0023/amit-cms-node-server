@@ -1,3 +1,4 @@
+const { promisify } = require("bluebird");
 const { MongoClient } = require("mongodb");
 
 let connection;
@@ -9,6 +10,7 @@ async function main() {
   connection = await client.connect();
   dbs["maliview"] = await setDB("maliview");
   dbs["aviator"] = await setDB("aviator");
+  dbs["users"] = await setDB("amit-apel");
 }
 
 async function setDB(database) {
@@ -19,6 +21,7 @@ const dbs = {
   maliview: null,
   aviator: null,
   db: null,
+  users: null,
 };
 
 async function setCollection(collection) {
