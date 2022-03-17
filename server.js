@@ -38,29 +38,32 @@ module.exports = () => {
   require("./controllers/auth/routes")(app, upload);
 
   app.use("/api", async (req, res, next) => {
-    const cookies = req.cookies;
+    const auth_headers = req.headers["authorization"];
+    if (auth_headers) {
+      const token = auth_headers.split(" ")[1];
+      const users = await db["users"].collection("users");
 
-    const users = await db["users"].collection("users");
-    const token = cookies.access_token;
+      if (token) {
+        const admin = await users.findOne({
+          username: "admin",
+        });
 
-    if (token) {
-      const admin = await users.findOne({
-        username: "admin",
-      });
-      console.log(admin);
-      if (admin.access_token === token) {
-        req.user = {
-          is_loggedIn: true,
-        };
+        if (admin.access_token === token) {
+          req.user = {
+            is_loggedIn: true,
+          };
 
-        next();
+          next();
+        } else {
+          res.status(403).json();
+          return;
+        }
       } else {
         res.status(403).json();
         return;
       }
     } else {
       res.status(403).json();
-      return;
     }
   });
   app.use("/api", async (req, res, next) => {

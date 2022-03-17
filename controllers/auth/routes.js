@@ -21,7 +21,7 @@ module.exports = async (router, upload) => {
   router.post("/auth/login", upload.none(), async (req, res) => {
     
     const req_data = req.body;
-    console.log(req_data);
+    
     const user = await users.findOne({
       username: req_data.username,
     });
