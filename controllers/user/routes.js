@@ -18,7 +18,6 @@ module.exports = async (router, upload) => {
   const db = require("../../db.js");
   const users = await db.db["users"].collection("users");
   router.get("/logged-in", upload.none(), async (req, res) => {
-    res.json(444);
     if (req.user && req.user.is_loggedIn) {
       res.json();
     } else {

@@ -27,7 +27,7 @@ var corsOptions = {
 module.exports = () => {
   const express = require("express");
   const app = express();
-  app.get("/api/test", (req, res) => {
+  app.post("/api/test", (req, res) => {
     res.json("to");
   });
   app.use(cookieParser());
@@ -36,34 +36,34 @@ module.exports = () => {
   app.use(cors(corsOptions));
   const port = 8080;
   require("./controllers/auth/routes")(app, upload);
-
+  app.use("/api/test", async (req, res, next) => {
+    console.log(req.headers);
+  });
   app.use("/api", async (req, res, next) => {
-    const auth_headers = req.headers["authorization"];
-    if (auth_headers) {
-      const token = auth_headers.split(" ")[1];
-      const users = await db["users"].collection("users");
+    const cookies = req.cookies;
+      
 
-      if (token) {
-        const admin = await users.findOne({
-          username: "admin",
-        });
+    const users = await db["users"].collection("users");
+    const token = cookies.access_token;
 
-        if (admin.access_token === token) {
-          req.user = {
-            is_loggedIn: true,
-          };
+    if (token) {
+      const admin = await users.findOne({
+        username: "admin",
+      });
 
-          next();
-        } else {
-          res.status(403).json();
-          return;
-        }
+      if (admin.access_token === token) {
+        req.user = {
+          is_loggedIn: true,
+        };
+
+        next();
       } else {
         res.status(403).json();
         return;
       }
     } else {
       res.status(403).json();
+      return;
     }
   });
   app.use("/api", async (req, res, next) => {
@@ -88,16 +88,24 @@ module.exports = () => {
       }
 
       const formatted_url = decodeURIComponent(req._parsedUrl.pathname);
+
       const filePath = path.posix.join("public", formatted_url);
+
       const fileName = path.parse(filePath);
       const sharpStream = sharp({
         failOnError: false,
       });
+
+      if (!fs.existsSync(filePath)) {
+        res.status(404).send();
+        return;
+      }
       const readStream = fs.createReadStream(filePath);
       readStream.on("open", async function () {
         // This just pipes the read stream to the response object (which goes to the client)
         readStream.pipe(sharpStream);
         const savePath = path.join("./temp", fileName.base + fileName.ext);
+
         if (existsSync(savePath)) {
           res.sendFile(savePath, {
             root: __dirname,

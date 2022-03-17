@@ -84,6 +84,7 @@ module.exports = async (router, upload) => {
     res.json({});
   });
   router.put("/bg-pages", upload.single("image"), async (req, res) => {
+    console.log(req.file);
     const images = [req.file];
     const data = req.body;
     const video_url = req.body.video_url;

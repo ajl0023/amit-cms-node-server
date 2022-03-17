@@ -19,9 +19,8 @@ module.exports = async (router, upload) => {
   const users = await db.db["users"].collection("users");
 
   router.post("/auth/login", upload.none(), async (req, res) => {
-    
     const req_data = req.body;
-    
+
     const user = await users.findOne({
       username: req_data.username,
     });
@@ -30,6 +29,11 @@ module.exports = async (router, upload) => {
       bcrypt.compare(req_data.password, user.password, async (err, result) => {
         if (result === true) {
           const access_token = randomUUID();
+          let objJsonStr = JSON.stringify({
+            access_token,
+            databaseL,
+          });
+          let objJsonB64 = Buffer.from(objJsonStr).toString("base64");
           await users.updateOne(
             {
               _id: ObjectId(user._id),
