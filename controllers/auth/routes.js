@@ -29,11 +29,7 @@ module.exports = async (router, upload) => {
       bcrypt.compare(req_data.password, user.password, async (err, result) => {
         if (result === true) {
           const access_token = randomUUID();
-          let objJsonStr = JSON.stringify({
-            access_token,
-            databaseL,
-          });
-          let objJsonB64 = Buffer.from(objJsonStr).toString("base64");
+
           await users.updateOne(
             {
               _id: ObjectId(user._id),

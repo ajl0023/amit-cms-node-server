@@ -39,7 +39,7 @@ module.exports = () => {
   app.use("/api/test", async (req, res, next) => {
     const cookies = req.cookies;
     const token = cookies.access_token;
-    res.json(token);
+    res.json(3);
   });
   app.use("/api", async (req, res, next) => {
     const cookies = req.cookies;

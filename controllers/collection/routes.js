@@ -19,6 +19,10 @@ module.exports = async (router, upload) => {
   const users = await db.db["users"].collection("users");
 
   router.get("/collection", upload.none(), async (req, res) => {
-    res.json(req.collection);
+    if (req.collection) {
+      res.json(req.collection);
+    } else {
+      res.status(403).json();
+    }
   });
 };
