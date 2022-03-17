@@ -10,10 +10,12 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const url = require("url");
 const storage = multer.memoryStorage();
+var httpProxy = require("http-proxy");
 
 const upload = multer({ storage: storage });
 
 require("dotenv").config();
+
 var whitelist = [
   "http://localhost:3002",
   "https://6232796ea9279e1a4aa57a11--competent-shaw-e15e44.netlify.app",
@@ -25,15 +27,16 @@ var corsOptions = {
 module.exports = () => {
   const express = require("express");
   const app = express();
+  app.get("/api/test", (req, res) => {
+    res.json("to");
+  });
   app.use(cookieParser());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
   app.use(cors(corsOptions));
   const port = 8080;
   require("./controllers/auth/routes")(app, upload);
-  app.post("/auth/test", (req, res) => {
-    res.json("to");
-  });
+
   app.use("/api", async (req, res, next) => {
     const cookies = req.cookies;
 
