@@ -37,11 +37,12 @@ module.exports = () => {
   const port = 8080;
   require("./controllers/auth/routes")(app, upload);
   app.use("/api/test", async (req, res, next) => {
-    console.log(req.headers);
+    const cookies = req.cookies;
+    const token = cookies.access_token;
+    res.json(token);
   });
   app.use("/api", async (req, res, next) => {
     const cookies = req.cookies;
-      
 
     const users = await db["users"].collection("users");
     const token = cookies.access_token;
