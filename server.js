@@ -18,7 +18,7 @@ require("dotenv").config();
 
 var whitelist = [
   "http://localhost:3002",
-  "https://6232796ea9279e1a4aa57a11--competent-shaw-e15e44.netlify.app",
+  "https://6233c20cf0906f196402d9f2--competent-shaw-e15e44.netlify.app",
 ];
 var corsOptions = {
   origin: whitelist,
