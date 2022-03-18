@@ -43,9 +43,6 @@ module.exports = () => {
     res.json(3);
   });
   app.use("/api", async (req, res, next) => {
-    if (req.method === "DELETE") {
-      console.log(req.headers);
-    }
     const cookies = req.cookies;
 
     const users = await db["users"].collection("users");

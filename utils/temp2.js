@@ -109,7 +109,7 @@ async function changePrefixOfAllImages() {
       }
     }
   }
-  console.log(references);
+
   await disconnect();
   process.exit(0);
 }

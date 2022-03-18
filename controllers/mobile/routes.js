@@ -62,6 +62,8 @@ module.exports = async (router, upload) => {
         );
 
         res.json({});
+      } else {
+        res.json({});
       }
     }
   );

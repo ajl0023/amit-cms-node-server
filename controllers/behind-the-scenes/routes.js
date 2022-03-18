@@ -30,6 +30,7 @@ module.exports = async (router, upload) => {
     ]),
     async (req, res) => {
       const images = req.files.images;
+
       const data = req.body;
 
       const category = await db.current_db.collection("categories").findOne({
