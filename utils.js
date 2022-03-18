@@ -4,7 +4,6 @@ const fs = require("fs-extra");
 const axios = require("axios").default;
 var _ = require("lodash");
 
-
 const path = require("path");
 const { ObjectId } = require("mongodb");
 
@@ -50,7 +49,9 @@ module.exports = {
   },
 
   buildUrlsForDB(file, folder) {
-    const host = `http://localhost:${process.env.SERVER_PORT}/`;
+    const host = process.env.SERVER_PORT
+      ? `http://localhost:${process.env.SERVER_PORT}/`
+      : "https://test12312312356415616.store/";
     const base = "mock-bb-storage";
 
     const url = host + path.join(base, folder, file).split(path.sep).join("/");

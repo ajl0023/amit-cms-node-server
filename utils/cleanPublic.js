@@ -72,8 +72,8 @@ async function changePrefixOfAllImages() {
   const paths = references.map((item) => {
     return path.parse(item);
   });
-  console.log(paths);
-  // await compareFiles(paths);
+
+  await compareFiles(paths);
   await disconnect();
   process.exit(0);
 }
