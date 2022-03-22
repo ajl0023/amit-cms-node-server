@@ -37,16 +37,13 @@ module.exports = () => {
   app.use(cors(corsOptions));
   const port = 8080;
   require("./controllers/auth/routes")(app, upload);
-  app.use("/api/test", async (req, res, next) => {
-    const cookies = req.cookies;
-    const token = cookies.access_token;
-    res.json(3);
-  });
+
   app.use("/api", async (req, res, next) => {
     const cookies = req.cookies;
 
     const users = await db["users"].collection("users");
     const token = cookies.access_token;
+    const client_token = cookies.client_token;
 
     if (token) {
       const admin = await users.findOne({
@@ -57,14 +54,16 @@ module.exports = () => {
         req.user = {
           is_loggedIn: true,
         };
-
-        next();
       } else {
         res.status(403).json();
+
         return;
       }
+    } else if (client_token === process.env.CLIENT_TOKEN) {
+      next();
     } else {
       res.status(403).json();
+
       return;
     }
   });

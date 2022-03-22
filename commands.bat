@@ -1,2 +1,2 @@
-git add . && git commit -m "photos are not fully finished, but its ok" && git push origin main
+git add . && git commit -m " allow client sites" && git push origin main
 
