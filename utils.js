@@ -22,7 +22,7 @@ module.exports = {
     const compressed = images.map((image) => {
       const fileName = path.parse(image.originalname);
       const image_type = imageType(image.buffer);
-      console.log(image_type);
+
       const sharpInst = sharp(image.buffer);
       const new_fileName = crypto.randomUUID() + fileName.name + fileName.ext;
       return sharpInst.metadata().then((metadata) => {
