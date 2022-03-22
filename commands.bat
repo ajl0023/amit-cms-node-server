@@ -1,2 +1,2 @@
-git add . && git commit -m " allow client sites" && git push origin main
+git add . && git commit -m "small server bug issue" && git push origin main
 

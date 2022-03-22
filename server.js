@@ -54,6 +54,7 @@ module.exports = () => {
         req.user = {
           is_loggedIn: true,
         };
+        next();
       } else {
         res.status(403).json();
 
