@@ -1,2 +1,2 @@
-git add . && git commit -m "small server bug issue" && git push origin main
+git add . && git commit -m "slight changes to image compression" && git push origin main
 

@@ -44,7 +44,7 @@ module.exports = () => {
     const users = await db["users"].collection("users");
     const token = cookies.access_token;
     const client_token = cookies.client_token;
-    console.log(client_token);
+
     if (token) {
       const admin = await users.findOne({
         username: "admin",

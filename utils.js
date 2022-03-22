@@ -3,6 +3,7 @@ const sharp = require("sharp");
 const fs = require("fs-extra");
 const axios = require("axios").default;
 var _ = require("lodash");
+const imageType = require("image-type");
 
 const path = require("path");
 const { ObjectId } = require("mongodb");
@@ -20,6 +21,8 @@ module.exports = {
   compressImages(images, folderName) {
     const compressed = images.map((image) => {
       const fileName = path.parse(image.originalname);
+      const image_type = imageType(image.buffer);
+      console.log(image_type);
       const sharpInst = sharp(image.buffer);
       const new_fileName = crypto.randomUUID() + fileName.name + fileName.ext;
       return sharpInst.metadata().then((metadata) => {
@@ -31,12 +34,27 @@ module.exports = {
         );
 
         if (metadata.width >= 1200) {
-          return sharpInst
-            .resize({ width: 1100 })
-            .toFile(savePath)
-            .then(() => {
-              return new_fileName;
-            });
+          if (image_type.ext !== "png") {
+            return sharpInst
+              .resize({ width: 1100 })
+              .jpeg({
+                quality: 95,
+              })
+              .toFile(savePath)
+              .then(() => {
+                return new_fileName;
+              });
+          } else {
+            return sharpInst
+              .resize({ width: 1100 })
+              .png({
+                quality: 75,
+              })
+              .toFile(savePath)
+              .then(() => {
+                return new_fileName;
+              });
+          }
         } else {
           return sharpInst.toFile(savePath).then(() => {
             return new_fileName;
