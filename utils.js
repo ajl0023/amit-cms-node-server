@@ -37,6 +37,7 @@ module.exports = {
           if (image_type.ext !== "png") {
             return sharpInst
               .resize({ width: 1100 })
+              .withMetadata()
               .jpeg({
                 quality: 95,
               })
