@@ -8,9 +8,9 @@ const root = "./images";
 const imageData = [];
 const promises = [];
 const database = "maliview";
-const mainFolder = "renders-mobile";
-const subFolder = "full";
-const bbFolder = "renders-mobile";
+const mainFolder = "bts";
+const subFolder = "phase3";
+const bbFolder = "bts";
 const mockFolder = "./public/mock-bb-storage";
 const copyFile = promisify(fs.copyFile);
 async function main(folder) {

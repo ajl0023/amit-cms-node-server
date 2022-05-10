@@ -119,10 +119,10 @@ module.exports = async (router, upload) => {
     async (req, res) => {
       const data = req.body;
 
-      const category = await db.current_db
+      const category = await db.db.maliview
         .collection("categories")
         .findOne({ _id: ObjectId(data._id) });
-      const collection = db.current_db.collection("behind-the-scenes");
+      const collection = db.db.maliview.collection("behind-the-scenes");
       if (req.files && !_.isEmpty(req.files.images)) {
         const images = req.files.images;
         const compress = compressImages(images, category.imageFolder);
