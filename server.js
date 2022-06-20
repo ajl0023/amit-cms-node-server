@@ -1,16 +1,21 @@
 const { existsSync } = require("fs");
 const fs = require("fs-extra");
-
+const _ = require("lodash");
 const path = require("path");
 const sharp = require("sharp");
 const multer = require("multer");
-const { getCurrentConnection } = require("./utils");
+const {
+  getCurrentConnection,
+  buildUrlsForDB,
+  compressImages,
+} = require("./utils");
 const { db, setCollection, current_db } = require("./db");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const url = require("url");
 const storage = multer.memoryStorage();
 var httpProxy = require("http-proxy");
+const { ObjectId } = require("mongodb");
 
 const upload = multer({ storage: storage });
 
@@ -37,8 +42,53 @@ module.exports = () => {
   app.use(cors(corsOptions));
   const port = 8080;
   require("./controllers/auth/routes")(app, upload);
+  app.use(
+    "/phase/api",
+    upload.fields([
+      {
+        name: "images",
+      },
+    ]),
+    async (req, res, next) => {
+      const data = req.body;
+      const category = await db.maliview
+        .collection("categories")
+        .findOne({ _id: ObjectId(data.category) });
+      const collection = db.maliview.collection("behind-the-scenes");
 
+      if (req.files && !_.isEmpty(req.files.images)) {
+        const images = req.files.images;
+        const compress = compressImages(images, category.imageFolder);
+        const compressed = await Promise.all(compress);
+        const get_max = await collection
+          .find()
+          .sort({ order: -1 })
+          .limit(1)
+          .toArray();
+        const starting_order = get_max.length > 0 ? get_max[0].order : 0;
+        const insert_data = {
+          images: compressed.map((item, i) => {
+            return {
+              _id: ObjectId(),
+              url: buildUrlsForDB(item, category.imageFolder),
+              order: i,
+            };
+          }),
+          order: starting_order + 1,
+          page: "behind-the-scenes",
+          phase: req.body.phase ? parseInt(req.body.phase) : 0,
+          category: ObjectId(category._id),
+        };
+        const insert = await collection.insertOne(insert_data);
+        res.json("success");
+      } else {
+        res.json({});
+      }
+      return;
+    }
+  );
   app.use("/api", async (req, res, next) => {
+    console.log("test");
     next();
     // const cookies = req.cookies;
 

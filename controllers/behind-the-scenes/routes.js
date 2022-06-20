@@ -117,12 +117,14 @@ module.exports = async (router, upload) => {
       },
     ]),
     async (req, res) => {
+      console.log("test");
       const data = req.body;
 
       const category = await db.db.maliview
         .collection("categories")
         .findOne({ _id: ObjectId(data._id) });
       const collection = db.db.maliview.collection("behind-the-scenes");
+      console.log(req.files);
       if (req.files && !_.isEmpty(req.files.images)) {
         const images = req.files.images;
         const compress = compressImages(images, category.imageFolder);
@@ -147,7 +149,7 @@ module.exports = async (router, upload) => {
           category: ObjectId(category._id),
         };
         const insert = await collection.insertOne(insert_data);
-        res.json({});
+        res.json("success");
       } else {
         res.json({});
       }
